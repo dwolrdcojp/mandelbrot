@@ -1,3 +1,5 @@
+// complile command
+//  g++ main.cpp -o main -F/Users/max/Library/Frameworks -framework SDL2 -Wl,-rpath,/Users/max/Library/Frameworks
 #include <SDL_keycode.h>
 #include <iostream>
 #include <SDL.h>
