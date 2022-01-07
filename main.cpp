@@ -1,13 +1,15 @@
+#include <SDL_keycode.h>
 #include <iostream>
 #include <SDL.h>
+#include <complex>
 
-int WIDTH = 803;
-int HEIGHT = 800;
+int WIDTH = 1000;
+int HEIGHT = 1000;
 
-long double min = -2.0;
-long double max =  2.0;
-
+long double min = -2.84;
+long double max =  1.0;
 int MAX_ITERATIONS = 200;
+long double factor = 1;
 
 long double map(long double value, long double in_min, long double in_max, long double out_min, long double out_max) {
 	return(value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -27,9 +29,21 @@ int main(int argc, char* argv[]) {
 
 	bool is_running = true;
 	while (is_running) {
+		int count = 0;
+		max -= 0.1 * factor;
+		min += 0.15 * factor;
+		factor *= 0.9349;
+		MAX_ITERATIONS += 5;
+
+		if (count > 30) {
+			MAX_ITERATIONS *= 1.02;
+		}
+
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
 			    is_running = false;
+			}else if(event.key.keysym.sym == SDLK_q){
+				is_running = false;
 			}
 		}
 
@@ -62,12 +76,21 @@ int main(int argc, char* argv[]) {
 
 					n++;
 				}
-				if (n == MAX_ITERATIONS) {
-				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-				SDL_RenderDrawPoint(renderer, x, y);
+				long double bright = map(n, 0, MAX_ITERATIONS, 0, 255);
+				
+				if ((n == MAX_ITERATIONS) || (bright < 20)) {
+					bright = 0;
 				}	
+				long double red = map(bright * bright, 0, 255 * 255, 0, 255);
+				long double green = bright;
+				long double blue = map(sqrt(bright), 0, sqrt(255), 0, 255);
+
+				SDL_SetRenderDrawColor(renderer, red, green, blue, SDL_ALPHA_OPAQUE);
+				SDL_RenderDrawPoint(renderer, x, y);
 			}
 		}
+		SDL_Delay(150);
+		count++;
 	}
 	return 0;
 }
